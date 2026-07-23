@@ -1,0 +1,19 @@
+{
+  "name": "google-classroom-lms",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-Powered Google Classroom-Inspired Virtual Classroom & Learning Management System",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "seed": "cd backend && npm run seed",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "dev": "concurrently --raw \"npm run backend\" \"npm run frontend\"",
+    "build": "cd frontend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
