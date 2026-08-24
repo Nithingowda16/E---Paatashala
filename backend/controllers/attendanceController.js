@@ -131,7 +131,11 @@ export const getClassroomAttendanceStats = async (req, res) => {
     // Teacher View
     const totalSessions = sessions.length;
     const studentStats = members.map((m) => {
-      const sRecords = records.filter((r) => r.student._id.toString() === m.user._id.toString());
+      const memberUserId = (m.user._id || m.user).toString();
+      const sRecords = records.filter((r) => {
+        const recordStudentId = (r.student._id || r.student).toString();
+        return recordStudentId === memberUserId;
+      });
       const presentCount = sRecords.filter((r) => r.status === 'PRESENT' || r.status === 'LATE').length;
       const percentage = totalSessions > 0 ? Math.round((presentCount / totalSessions) * 100) : 100;
 

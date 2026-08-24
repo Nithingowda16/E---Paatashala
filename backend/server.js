@@ -41,6 +41,8 @@ const io = new SocketIOServer(server, {
   },
 });
 
+app.set('io', io);
+
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(helmet({ crossOriginResourcePolicy: false }));
@@ -70,7 +72,7 @@ app.use('/api/admin', adminRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
-    app: 'Google Classroom AI LMS Backend',
+    app: 'NxtWave Online AI LMS Backend',
     timestamp: new Date().toISOString(),
   });
 });

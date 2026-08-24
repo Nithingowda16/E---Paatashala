@@ -1,8 +1,8 @@
 {
-  "name": "google-classroom-lms",
+  "name": "nxtwave-online-lms",
   "version": "1.0.0",
   "private": true,
-  "description": "AI-Powered Google Classroom-Inspired Virtual Classroom & Learning Management System",
+  "description": "AI-Powered NxtWave Online Virtual Classroom & Learning Management System",
   "scripts": {
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "install:backend": "cd backend && npm install",

@@ -514,10 +514,52 @@ export const ClassroomDetail = () => {
 
           {/* Attendance Stats Cards */}
           <div className="material-card">
-            <h3 style={{ marginBottom: '16px' }}>Attendance Performance Summary</h3>
-            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#34a853' }}>
-              Overall Class Attendance: {attendanceData?.stats?.percentage || attendanceData?.percentage || 92}%
-            </div>
+            <h3 style={{ marginBottom: '16px', fontSize: '1.2rem' }}>Attendance Performance Summary</h3>
+            
+            {user?.role === 'STUDENT' ? (
+              <div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--apple-green)' }}>
+                  Your Attendance: {attendanceData?.stats?.percentage ?? 100}%
+                </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)', marginTop: '4px' }}>
+                  Attended {attendanceData?.stats?.attendedSessions || 0} of {attendanceData?.stats?.totalSessions || 0} total sessions.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--apple-green)', marginBottom: '16px' }}>
+                  Overall Class Attendance Average: {
+                    attendanceData?.studentStats && attendanceData.studentStats.length > 0
+                      ? Math.round(attendanceData.studentStats.reduce((acc, curr) => acc + curr.percentage, 0) / attendanceData.studentStats.length)
+                      : 100
+                  }%
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {attendanceData?.studentStats && attendanceData.studentStats.length > 0 ? (
+                    attendanceData.studentStats.map((st) => (
+                      <div key={st.student?._id || st.student?.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-hover)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div className="user-avatar">{st.student?.name?.charAt(0) || 'S'}</div>
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{st.student?.name}</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-sub)' }}>{st.student?.email}</div>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: 'right' }}>
+                          <span className={`chip ${st.percentage >= 75 ? 'chip-success' : 'chip-danger'}`}>
+                            {st.percentage}% Attendance ({st.attendedCount}/{st.totalSessions} Sessions)
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)' }}>No attendance sessions conducted yet.</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

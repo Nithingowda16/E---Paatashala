@@ -12,18 +12,27 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role, studentId, department } = req.body;
 
-    const userExists = await User.findOne({ email });
+    // Strict Access Restriction: Only official @nxtwave.in email addresses allowed
+    if (!email || !email.toLowerCase().trim().endsWith('@nxtwave.in')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access Restricted: Only authorized NxtWave students and mentors are allowed to access this portal.',
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User already exists with this email address.' });
     }
 
     const user = await User.create({
       name,
-      email,
+      email: cleanEmail,
       password,
       role: role || 'STUDENT',
       studentId: studentId || '',
-      department: department || 'Computer Science',
+      department: department || 'Full Stack & AI Academy',
     });
 
     res.status(201).json({
@@ -49,7 +58,16 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    // Strict Access Restriction: Only official @nxtwave.in email addresses allowed
+    if (!email || !email.toLowerCase().trim().endsWith('@nxtwave.in')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access Restricted: Only authorized NxtWave students and mentors are allowed to access this portal.',
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: cleanEmail });
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
@@ -117,6 +135,16 @@ export const updateProfile = async (req, res) => {
         profilePhoto: user.profilePhoto,
       },
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @route GET /api/auth/students
+export const getStudentsList = async (req, res) => {
+  try {
+    const students = await User.find({ role: 'STUDENT', accountStatus: 'ACTIVE' }).select('name email profilePhoto studentId department');
+    res.json({ success: true, students });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

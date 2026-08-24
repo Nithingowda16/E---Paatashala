@@ -1,4 +1,4 @@
-# AI-Powered Google Classroom Learning Management System (LMS)
+# AI-Powered NxtWave Online Learning Management System (LMS)
 
 A complete, production-grade **Virtual Classroom & Learning Management Platform** inspired by Google Classroom and Google Material Design 3. Built with **Node.js, Express, MongoDB Atlas / Mongoose, React, Vite, Socket.IO, WebRTC, Multer, and the Google Gemini API**.
 

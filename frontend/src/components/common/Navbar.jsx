@@ -22,9 +22,8 @@ export const Navbar = ({ onToggleSidebar }) => {
         <button className="icon-btn" onClick={onToggleSidebar} aria-label="Toggle menu">
           <span className="material-symbols-outlined">menu</span>
         </button>
-        <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'inherit' }}>
+        <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'inherit', textDecoration: 'none' }}>
           <Logo size={34} />
-          <span>E Paatashala</span>
         </Link>
       </div>
 

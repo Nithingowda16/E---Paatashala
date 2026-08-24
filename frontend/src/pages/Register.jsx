@@ -5,15 +5,13 @@ import { ThemeContext } from '../context/ThemeContext';
 import { NotificationContext } from '../context/NotificationContext';
 import api from '../services/api';
 import { Logo } from '../components/common/Logo';
-import { UserPlus, Sun, Moon, ArrowLeft } from 'lucide-react';
+import { UserPlus, Sun, Moon, ArrowLeft, ShieldAlert } from 'lucide-react';
 
 export const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('STUDENT');
-  const [studentId, setStudentId] = useState('');
-  const [department, setDepartment] = useState('Computer Science');
   const [loading, setLoading] = useState(false);
 
   const { login } = useContext(AuthContext);
@@ -21,18 +19,24 @@ export const Register = () => {
   const { showToast } = useContext(NotificationContext);
   const navigate = useNavigate();
 
+  const isUnauthorizedDomain = email.length > 3 && !email.toLowerCase().trim().endsWith('@nxtwave.in');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.toLowerCase().trim().endsWith('@nxtwave.in')) {
+      showToast('Access Restricted: Only authorized NxtWave students and mentors are allowed to access this portal.', 'error');
+      return;
+    }
     setLoading(true);
     try {
-      const res = await api.post('/auth/register', { name, email, password, role, studentId, department });
+      const res = await api.post('/auth/register', { name, email, password, role });
       if (res.data.success) {
         login(res.data);
         showToast('Account created successfully!', 'success');
         navigate('/dashboard');
       }
     } catch (err) {
-      showToast(err.response?.data?.message || 'Registration failed', 'error');
+      showToast(err.response?.data?.message || 'Access Restricted: Registration failed.', 'error');
     } finally {
       setLoading(false);
     }
@@ -52,12 +56,20 @@ export const Register = () => {
         </button>
       </div>
 
-      <div className="material-card" style={{ width: '100%', maxWidth: '460px', padding: '32px 28px', marginTop: '40px' }}>
+      <div className="material-card" style={{ width: '100%', maxWidth: '420px', padding: '32px 28px', marginTop: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Logo size={44} />
+          <Logo size={44} showOnlineBadge={false} />
           <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginTop: '8px' }}>Create Your LMS Account</h2>
-          <p style={{ color: 'var(--text-sub)', fontSize: '0.85rem' }}>Join E Paatashala platform</p>
+          <p style={{ color: 'var(--text-sub)', fontSize: '0.85rem' }}>Join NxtWave Online platform (@nxtwave.in only)</p>
         </div>
+
+        {/* Access Restricted Warning Alert */}
+        {isUnauthorizedDomain && (
+          <div className="chip chip-danger" style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: 'var(--radius-sm)', width: '100%', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem' }}>
+            <ShieldAlert size={18} style={{ flexShrink: 0 }} />
+            <span>Access Restricted: Only authorized @nxtwave.in accounts are permitted.</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
@@ -67,7 +79,7 @@ export const Register = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder="e.g. Ananya Sharma"
+              placeholder="e.g. Shraddha"
             />
           </div>
 
@@ -78,7 +90,7 @@ export const Register = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="e.g. ananya@school.edu"
+              placeholder="e.g. saishivani@nxtwave.in"
             />
           </div>
 
@@ -93,39 +105,16 @@ export const Register = () => {
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <div style={{ flex: 1 }}>
-              <label>Account Role</label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="STUDENT">Student</option>
-                <option value="TEACHER">Teacher</option>
-              </select>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label>Department</label>
-              <input
-                type="text"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                placeholder="e.g. Computer Science"
-              />
-            </div>
+          <div>
+            <label>Account Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="STUDENT">Student</option>
+              <option value="TEACHER">Teacher / Mentor</option>
+            </select>
           </div>
-
-          {role === 'STUDENT' && (
-            <div>
-              <label>Student ID Number</label>
-              <input
-                type="text"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                placeholder="e.g. CS2026-001"
-              />
-            </div>
-          )}
 
           <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%', marginTop: '8px' }}>
             <UserPlus size={18} /> {loading ? 'Registering...' : 'Create Account'}

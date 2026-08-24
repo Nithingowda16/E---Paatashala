@@ -5,7 +5,7 @@ import { ThemeContext } from '../context/ThemeContext';
 import { NotificationContext } from '../context/NotificationContext';
 import api from '../services/api';
 import { Logo } from '../components/common/Logo';
-import { LogIn, Sun, Moon, ArrowLeft } from 'lucide-react';
+import { LogIn, Sun, Moon, ArrowLeft, ShieldAlert } from 'lucide-react';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -17,8 +17,14 @@ export const Login = () => {
   const { showToast } = useContext(NotificationContext);
   const navigate = useNavigate();
 
+  const isUnauthorizedDomain = email.length > 3 && !email.toLowerCase().trim().endsWith('@nxtwave.in');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.toLowerCase().trim().endsWith('@nxtwave.in')) {
+      showToast('Access Restricted: Only authorized NxtWave students and mentors are allowed to access this portal.', 'error');
+      return;
+    }
     setLoading(true);
     try {
       const res = await api.post('/auth/login', { email, password });
@@ -28,7 +34,7 @@ export const Login = () => {
         navigate('/dashboard');
       }
     } catch (err) {
-      showToast(err.response?.data?.message || 'Login failed', 'error');
+      showToast(err.response?.data?.message || 'Access Restricted: Invalid credentials or unauthorized email.', 'error');
     } finally {
       setLoading(false);
     }
@@ -50,10 +56,18 @@ export const Login = () => {
 
       <div className="material-card" style={{ width: '100%', maxWidth: '420px', padding: '36px 28px', marginTop: '40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Logo size={48} />
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginTop: '12px' }}>Sign in to E Paatashala</h2>
-          <p style={{ color: 'var(--text-sub)', fontSize: '0.85rem', marginTop: '4px' }}>Use your academic account to manage classes & materials</p>
+          <Logo size={48} showOnlineBadge={false} />
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginTop: '12px' }}>Sign in to NxtWave Online</h2>
+          <p style={{ color: 'var(--text-sub)', fontSize: '0.85rem', marginTop: '4px' }}>Use your official @nxtwave.in account to access portal</p>
         </div>
+
+        {/* Access Restricted Warning Alert */}
+        {isUnauthorizedDomain && (
+          <div className="chip chip-danger" style={{ marginBottom: '16px', padding: '10px 14px', borderRadius: 'var(--radius-sm)', width: '100%', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem' }}>
+            <ShieldAlert size={18} style={{ flexShrink: 0 }} />
+            <span>Access Restricted: Only authorized @nxtwave.in accounts are permitted.</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
@@ -63,7 +77,7 @@ export const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter your email address"
+              placeholder="e.g. shraddha@nxtwave.in"
             />
           </div>
 

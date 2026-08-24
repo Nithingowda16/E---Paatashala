@@ -8,6 +8,7 @@ const notificationSchema = new mongoose.Schema(
     type: {
       type: String,
       enum: [
+        'CLASSROOM_INVITE',
         'ASSIGNMENT_POSTED',
         'ASSIGNMENT_REMINDER',
         'ASSIGNMENT_OVERDUE',

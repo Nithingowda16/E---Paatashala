@@ -2,6 +2,7 @@ import { Classroom } from '../models/Classroom.js';
 import { ClassMember } from '../models/ClassMember.js';
 import { User } from '../models/User.js';
 import { ActivityLog } from '../models/ActivityLog.js';
+import { Notification } from '../models/Notification.js';
 
 // Unique Class Code Generator: e.g. CS-AI-7X92
 const generateClassCode = (subject) => {
@@ -14,7 +15,7 @@ const generateClassCode = (subject) => {
 // @route POST /api/classrooms
 export const createClassroom = async (req, res) => {
   try {
-    const { name, subject, section, room, description, academicYear } = req.body;
+    const { name, subject, section, room, description, academicYear, studentIds } = req.body;
     const classCode = generateClassCode(subject);
 
     const classroom = await Classroom.create({
@@ -23,7 +24,7 @@ export const createClassroom = async (req, res) => {
       section: section || 'A',
       room: room || 'Main Hall',
       description: description || '',
-      academicYear: academicYear || '2025-2026',
+      academicYear: academicYear || '2026',
       classCode,
       teacher: req.user._id,
     });
@@ -34,6 +35,39 @@ export const createClassroom = async (req, res) => {
       user: req.user._id,
       role: 'TEACHER',
     });
+
+    // Enroll selected students and send notifications
+    if (studentIds && Array.isArray(studentIds) && studentIds.length > 0) {
+      const io = req.app.get('io');
+
+      for (const sId of studentIds) {
+        if (!sId) continue;
+
+        // Prevent duplicate membership
+        const existing = await ClassMember.findOne({ classroom: classroom._id, user: sId });
+        if (!existing) {
+          await ClassMember.create({
+            classroom: classroom._id,
+            user: sId,
+            role: 'STUDENT',
+          });
+        }
+
+        // Create system notification
+        const notification = await Notification.create({
+          user: sId,
+          title: `Enrolled in New Class: ${name}`,
+          message: `Mentor ${req.user.name} added you to classroom ${name} (${classCode}). Click to view your class.`,
+          type: 'CLASSROOM_INVITE',
+          link: `/classroom/${classroom._id}`,
+        });
+
+        // Emit real-time Socket.IO notification if online
+        if (io) {
+          io.to(`user:${sId}`).emit('notification', notification);
+        }
+      }
+    }
 
     await ActivityLog.create({
       user: req.user._id,
@@ -73,6 +107,15 @@ export const getUserClassrooms = async (req, res) => {
 export const joinClassroomByCode = async (req, res) => {
   try {
     const { classCode } = req.body;
+    
+    // Strict Access Restriction: Only @nxtwave.in users allowed
+    if (!req.user || !req.user.email || !req.user.email.toLowerCase().endsWith('@nxtwave.in')) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access Restricted: Only authorized NxtWave students and mentors are allowed to access this portal.',
+      });
+    }
+
     if (!classCode) {
       return res.status(400).json({ success: false, message: 'Classroom code is required.' });
     }
