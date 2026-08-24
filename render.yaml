@@ -1,0 +1,16 @@
+# Render Blueprint Configuration for NxtWave Online LMS
+# Website: https://render.com
+
+services:
+  - type: web
+    name: nxtwave-online-lms
+    env: node
+    buildCommand: npm run install:all && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true

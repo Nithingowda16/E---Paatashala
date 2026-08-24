@@ -4,6 +4,7 @@
   "private": true,
   "description": "AI-Powered NxtWave Online Virtual Classroom & Learning Management System",
   "scripts": {
+    "start": "cd backend && npm start",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",

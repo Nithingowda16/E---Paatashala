@@ -81,6 +81,16 @@ app.get('/api/health', (req, res) => {
 setupSocketIO(io);
 startBackgroundJobs();
 
+// Serve static frontend build in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendDistPath = path.join(process.cwd(), '../frontend/dist');
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
+
 // Central Error Handler
 app.use(errorHandler);
 
