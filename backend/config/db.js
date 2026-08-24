@@ -17,7 +17,7 @@ export const connectDB = async () => {
     }
   }
 
-  // Attempt local MongoDB with fast 3s timeout
+  // Attempt local MongoDB with fast 2s timeout
   if (uri && !uri.startsWith('mongodb+srv://')) {
     try {
       const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 2000 });
@@ -28,10 +28,14 @@ export const connectDB = async () => {
     }
   }
 
-  // Fallback to In-Memory MongoDB Server (Zero-Config out of the box)
+  // Fallback to In-Memory MongoDB Server (v7.0.3 for Debian 12 / Render compatibility)
   try {
-    console.log('[Database] Starting Embedded In-Memory MongoDB Server...');
-    mongoServer = await MongoMemoryServer.create();
+    console.log('[Database] Starting Embedded In-Memory MongoDB Server (v7.0.3)...');
+    mongoServer = await MongoMemoryServer.create({
+      binary: {
+        version: '7.0.3',
+      },
+    });
     const memoryUri = mongoServer.getUri();
     const conn = await mongoose.connect(memoryUri);
     console.log(`[Database] Embedded In-Memory MongoDB Connected! (${memoryUri})`);
