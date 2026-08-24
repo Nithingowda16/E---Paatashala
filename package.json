@@ -5,7 +5,7 @@
   "description": "AI-Powered NxtWave Online Virtual Classroom & Learning Management System",
   "scripts": {
     "start": "cd backend && npm start",
-    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "install:all": "npm install --include=dev && cd backend && npm install --include=dev && cd ../frontend && npm install --include=dev",
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
     "seed": "cd backend && npm run seed",
@@ -14,7 +14,7 @@
     "dev": "concurrently --raw \"npm run backend\" \"npm run frontend\"",
     "build": "cd frontend && npm run build"
   },
-  "devDependencies": {
+  "dependencies": {
     "concurrently": "^8.2.2"
   }
 }
